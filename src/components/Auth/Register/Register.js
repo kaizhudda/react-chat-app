@@ -9,13 +9,38 @@ import {
   Button,
   Message,
 } from "semantic-ui-react";
+import firebase from "../../../firebase";
 import "./Register.scss";
 
 const Register = () => {
-  const [username, setUsername] = useState();
+  const [formInputs, setFormInputs] = useState({
+    username: "",
+    password: "",
+    email: "",
+    emailConfirmation: "",
+  });
 
-  const handleChange = () => {};
+  const handleChange = (e) => {
+    setFormInputs({
+      ...formInputs,
+      [e.target.name]: e.target.value,
+    });
+  };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    firebase
+      .auth()
+      .createUserWithEmailAndPassword(formInputs.email, formInputs.password)
+      .then((createdUser) => {
+        console.log(createdUser);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const { username, email, password, passwordConfirmation } = formInputs;
   return (
     <Grid textAlign="center" className="Register">
       <Grid.Column style={{ maxWidth: 450 }}>
@@ -23,7 +48,7 @@ const Register = () => {
           <Icon name="puzzle piece" color="orange" />
           Register for DevChat
         </Header>
-        <Form size="large">
+        <Form onSubmit={handleSubmit} size="large">
           <Segment stacked>
             <Form.Input
               fluid
@@ -32,6 +57,7 @@ const Register = () => {
               iconPosition="left"
               placeholder="Username"
               onChange={handleChange}
+              value={username}
               type="text"
             />
             <Form.Input
@@ -42,6 +68,7 @@ const Register = () => {
               placeholder="Email"
               onChange={handleChange}
               type="email"
+              value={email}
             />
             <Form.Input
               fluid
@@ -51,6 +78,7 @@ const Register = () => {
               placeholder="Password"
               onChange={handleChange}
               type="password"
+              value={password}
             />
             <Form.Input
               fluid
@@ -60,6 +88,7 @@ const Register = () => {
               placeholder="Password Confirmation"
               onChange={handleChange}
               type="password"
+              value={passwordConfirmation}
             />
 
             <Button color="orange" fluid size="large">
@@ -68,7 +97,7 @@ const Register = () => {
           </Segment>
         </Form>
         <Message>
-          Already a user? <Link to="/login" />
+          <Link to="/login">Already a user?</Link>
         </Message>
       </Grid.Column>
     </Grid>
