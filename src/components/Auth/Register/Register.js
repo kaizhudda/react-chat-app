@@ -17,8 +17,49 @@ const Register = () => {
     username: "",
     password: "",
     email: "",
-    emailConfirmation: "",
+    passwordConfirmation: "",
   });
+
+  const [errors, setErrors] = useState([]);
+
+  const isFormValid = () => {
+    let error;
+
+    if (isFormEmpty(formInputs)) {
+      error = { message: "fill in all fields" };
+      setErrors([error]);
+      return false;
+    } else if (isPasswordValid(formInputs)) {
+      error = { message: "Password invalid" };
+      setErrors([error]);
+    } else {
+      return true;
+    }
+  };
+
+  const isFormEmpty = (form) => {
+    const { username, email, passwordConfirmation, password } = form;
+    return (
+      !username.length ||
+      !email.length ||
+      !password.length ||
+      !passwordConfirmation.length
+    );
+  };
+
+  const isPasswordValid = ({ passwordConfirmation, password }) => {
+    if (password < 6 || passwordConfirmation < 6) {
+      return false;
+    } else if (password !== passwordConfirmation) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+
+  const displayErrors = (errors) => {
+    return errors.map((error, index) => <p key={index}>{error.message}</p>);
+  };
 
   const handleChange = (e) => {
     setFormInputs({
@@ -29,15 +70,17 @@ const Register = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    firebase
-      .auth()
-      .createUserWithEmailAndPassword(formInputs.email, formInputs.password)
-      .then((createdUser) => {
-        console.log(createdUser);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    if (isFormValid()) {
+      firebase
+        .auth()
+        .createUserWithEmailAndPassword(formInputs.email, formInputs.password)
+        .then((createdUser) => {
+          console.log(createdUser);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
   };
 
   const { username, email, password, passwordConfirmation } = formInputs;
@@ -96,6 +139,12 @@ const Register = () => {
             </Button>
           </Segment>
         </Form>
+        {errors.length > 0 && (
+          <Message error>
+            <h3>Error</h3>
+            {displayErrors(errors)}
+          </Message>
+        )}
         <Message>
           <Link to="/login">Already a user?</Link>
         </Message>
