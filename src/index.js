@@ -1,12 +1,27 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import "./index.css";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import App from "./components/App";
+import Login from "./components/Auth/Login";
+import Register from "./components/Auth/Register";
 import * as serviceWorker from "./serviceWorker";
+import "semantic-ui-css/semantic.min.css";
+
+const Root = () => {
+  return (
+    <Router>
+      <Switch>
+        <Route path="/register" component={Register} />
+        <Route path="/login" component={Login} />
+        <Route path="/" component={App} />
+      </Switch>
+    </Router>
+  );
+};
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <Root />
   </React.StrictMode>,
   document.getElementById("root")
 );
