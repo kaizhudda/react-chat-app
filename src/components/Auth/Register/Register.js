@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import md5 from "md5";
 import {
   Grid,
   Header,
@@ -22,6 +23,7 @@ const Register = () => {
 
   const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [usersRef] = useState(firebase.database().ref("users"));
 
   const isFormValid = () => {
     let error;
@@ -80,7 +82,24 @@ const Register = () => {
         .createUserWithEmailAndPassword(formInputs.email, formInputs.password)
         .then((createdUser) => {
           console.log(createdUser);
-          setLoading(false);
+          createdUser.user
+            .updateProfile({
+              displayName: formInputs.username,
+              photoURL: `http://gravatar.com/avatar/${md5(
+                createdUser.user.email
+              )}?d=identicon`,
+            })
+            .then(() => {
+              saveUser(createdUser).then(() => {
+                console.log("User saved.");
+              });
+              setLoading(false);
+            })
+            .catch((err) => {
+              console.error(err);
+              setErrors([err]);
+              setLoading(false);
+            });
         })
         .catch((err) => {
           console.log(err);
@@ -88,6 +107,13 @@ const Register = () => {
           setErrors([err]);
         });
     }
+  };
+
+  const saveUser = (createdUser) => {
+    return usersRef.child(createdUser.user.uid).set({
+      name: createdUser.user.displayName,
+      avatar: createdUser.user.photoURL,
+    });
   };
 
   const handleInputError = (errors, inputName) => {
