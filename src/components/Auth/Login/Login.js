@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import md5 from "md5";
 import {
   Grid,
   Header,
@@ -11,6 +10,7 @@ import {
   Message,
 } from "semantic-ui-react";
 import firebase from "../../../firebase";
+import "./Login.scss";
 
 const Login = () => {
   const [formInputs, setFormInputs] = useState({
