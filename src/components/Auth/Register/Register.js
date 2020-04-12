@@ -29,9 +29,10 @@ const Register = () => {
       error = { message: "fill in all fields" };
       setErrors([error]);
       return false;
-    } else if (isPasswordValid(formInputs)) {
+    } else if (!isPasswordValid(formInputs)) {
       error = { message: "Password invalid" };
       setErrors([error]);
+      return false;
     } else {
       return true;
     }
@@ -48,7 +49,7 @@ const Register = () => {
   };
 
   const isPasswordValid = ({ passwordConfirmation, password }) => {
-    if (password < 6 || passwordConfirmation < 6) {
+    if (password.length < 6 || passwordConfirmation.length < 6) {
       return false;
     } else if (password !== passwordConfirmation) {
       return false;
@@ -70,6 +71,7 @@ const Register = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setErrors([]);
     if (isFormValid()) {
       firebase
         .auth()
