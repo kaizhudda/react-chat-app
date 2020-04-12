@@ -13,11 +13,7 @@ import firebase from "../../../firebase";
 import "./Login.scss";
 
 const Login = () => {
-  const [formInputs, setFormInputs] = useState({
-    password: "",
-    email: "",
-  });
-
+  const [formInputs, setFormInputs] = useState({ password: "", email: "" });
   const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -94,7 +90,6 @@ const Login = () => {
               value={password}
               className={handleInputError(errors, "password")}
             />
-
             <Button
               disabled={loading}
               className={loading ? "loading" : ""}
