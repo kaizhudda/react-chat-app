@@ -21,6 +21,7 @@ const Register = () => {
   });
 
   const [errors, setErrors] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const isFormValid = () => {
     let error;
@@ -71,18 +72,30 @@ const Register = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setErrors([]);
     if (isFormValid()) {
+      setErrors([]);
+      setLoading(true);
       firebase
         .auth()
         .createUserWithEmailAndPassword(formInputs.email, formInputs.password)
         .then((createdUser) => {
           console.log(createdUser);
+          setLoading(false);
         })
         .catch((err) => {
           console.log(err);
+          setLoading(false);
+          setErrors([err]);
         });
     }
+  };
+
+  const handleInputError = (errors, inputName) => {
+    return errors.some((error) =>
+      error.message.toLowerCase().includes(inputName)
+    )
+      ? "error"
+      : "";
   };
 
   const { username, email, password, passwordConfirmation } = formInputs;
@@ -114,6 +127,7 @@ const Register = () => {
               onChange={handleChange}
               type="email"
               value={email}
+              className={handleInputError(errors, "email")}
             />
             <Form.Input
               fluid
@@ -124,6 +138,7 @@ const Register = () => {
               onChange={handleChange}
               type="password"
               value={password}
+              className={handleInputError(errors, "password")}
             />
             <Form.Input
               fluid
@@ -134,9 +149,16 @@ const Register = () => {
               onChange={handleChange}
               type="password"
               value={passwordConfirmation}
+              className={handleInputError(errors, "password")}
             />
 
-            <Button color="orange" fluid size="large">
+            <Button
+              disabled={loading}
+              className={loading ? "loading" : ""}
+              color="orange"
+              fluid
+              size="large"
+            >
               Submit
             </Button>
           </Segment>
