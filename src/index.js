@@ -6,19 +6,28 @@ import {
   Switch,
   useHistory,
 } from "react-router-dom";
+import { createStore } from "redux";
+import { Provider, useDispatch } from "react-redux";
+import { composeWithDevTools } from "redux-devtools-extension";
 import App from "./components/App";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import * as serviceWorker from "./serviceWorker";
 import firebase from "./firebase";
 import "semantic-ui-css/semantic.min.css";
+import rootReducer from "./store/reducers";
+import { setUser } from "./store/actions";
+
+const store = createStore(rootReducer, composeWithDevTools());
 
 const Root = () => {
   const [isLoggedIn, setIsLoggedIn] = useState();
   const history = useHistory();
+  const dispatch = useDispatch();
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
+        dispatch(setUser(user));
         history.push("/");
         setIsLoggedIn(true);
         console.log(history);
@@ -51,9 +60,11 @@ const Root = () => {
 };
 
 ReactDOM.render(
-  <Router>
-    <Root />
-  </Router>,
+  <Provider store={store}>
+    <Router>
+      <Root />
+    </Router>
+  </Provider>,
   document.getElementById("root")
 );
 
