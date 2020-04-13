@@ -7,7 +7,7 @@ import {
   useHistory,
 } from "react-router-dom";
 import { createStore } from "redux";
-import { Provider, useDispatch } from "react-redux";
+import { Provider, useDispatch, useSelector } from "react-redux";
 import { composeWithDevTools } from "redux-devtools-extension";
 import App from "./components/App";
 import Login from "./components/Auth/Login";
@@ -17,12 +17,16 @@ import firebase from "./firebase";
 import "semantic-ui-css/semantic.min.css";
 import rootReducer from "./store/reducers";
 import { setUser } from "./store/actions";
+import { selectUserLoading } from "./store/selectors/user";
+import Spinner from "./common/Spinner";
 
 const store = createStore(rootReducer, composeWithDevTools());
 
 const Root = () => {
   const [isLoggedIn, setIsLoggedIn] = useState();
   const history = useHistory();
+  const isLoading = useSelector((state) => selectUserLoading(state));
+  console.log(isLoading);
   const dispatch = useDispatch();
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
@@ -30,31 +34,20 @@ const Root = () => {
         dispatch(setUser(user));
         history.push("/");
         setIsLoggedIn(true);
-        console.log(history);
       }
     });
   }, []);
   return (
     <Router>
-      <Switch>
-        {isLoggedIn ? (
-          <Route path="/">
-            <App />
-          </Route>
-        ) : (
-          <>
-            <Route path="/register">
-              <Register />
-            </Route>
-            <Route path="/login">
-              <Login />
-            </Route>
-            <Route path="/">
-              <App />
-            </Route>
-          </>
-        )}
-      </Switch>
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <Switch>
+          <Route path="/register" component={Register} />
+          <Route path="/login" component={Login} />
+          <Route path="/" component={App} />
+        </Switch>
+      )}
     </Router>
   );
 };
