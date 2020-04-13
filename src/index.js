@@ -14,6 +14,7 @@ import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import * as serviceWorker from "./serviceWorker";
 import firebase from "./firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
 import "semantic-ui-css/semantic.min.css";
 import rootReducer from "./store/reducers";
 import { setUser } from "./store/actions";
@@ -23,29 +24,28 @@ import Spinner from "./common/Spinner";
 const store = createStore(rootReducer, composeWithDevTools());
 
 const Root = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState();
   const history = useHistory();
   const isLoading = useSelector((state) => selectUserLoading(state));
   console.log(isLoading);
   const dispatch = useDispatch();
+  const [user, loading, error] = useAuthState(firebase.auth());
+
   useEffect(() => {
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        dispatch(setUser(user));
-        history.push("/");
-        setIsLoggedIn(true);
-      }
-    });
-  }, []);
+    if (user) {
+      dispatch(setUser(user));
+      history.push("/");
+    }
+  }, [user]);
+
   return (
     <Router>
-      {isLoading ? (
+      {loading ? (
         <Spinner />
       ) : (
         <Switch>
+          <Route path="/" exact component={App} />
           <Route path="/register" component={Register} />
           <Route path="/login" component={Login} />
-          <Route path="/" component={App} />
         </Switch>
       )}
     </Router>
